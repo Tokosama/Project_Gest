@@ -13,11 +13,11 @@ const addUser = (username, hashedPassword, role, email, callback) => {
 };
 
 // Trouver un utilisateur par son nom d'utilisateur
-const getUserByUsername = (username, callback) => {
+const getUserByEmail = (email, callback) => {
   const query = `
-    SELECT * FROM users WHERE username = ?;
+    SELECT * FROM users WHERE email = ?;
   `;
-  db.get(query, [username], (err, row) => {
+  db.get(query, [email], (err, row) => {
     callback(err, row);
   });
 };
@@ -53,4 +53,4 @@ const getAllUsers = (callback) => {
   });
 };
 
-module.exports = { addUser, getUserByUsername, updateUser, deleteUser, getAllUsers };
+module.exports = { addUser, getUserByEmail, updateUser, deleteUser, getAllUsers };
