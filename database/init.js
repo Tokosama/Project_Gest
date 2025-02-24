@@ -17,7 +17,9 @@ const createTables = () => {
     CREATE TABLE IF NOT EXISTS projectors (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
-      status TEXT CHECK(status IN ('fonctionnel', 'panne', 'reserve')) DEFAULT 'disponible'
+      disponible TEXT CHECK(disponible IN ('oui', 'non')) DEFAULT 'oui',
+      fonctionnel TEXT CHECK(fonctionnel IN ('oui', 'non')) DEFAULT 'oui'
+
     );
   `;
 
