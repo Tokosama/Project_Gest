@@ -7,17 +7,24 @@ const addReservation = (
   reservationEnd,
   callback
 ) => {
-  const query = `
+  const query1 = `
       INSERT INTO reservations (user_id, projector_id, reservation_start, reservation_end)
       VALUES (?, ?, ?, ?);
     `;
+    const query2 = `
+     UPDATE projectors SET  disponible = 'non'
+    WHERE id = ?;
+    `
   db.run(
-    query,
+    query1,
     [userId, projectorId, reservationStart, reservationEnd],
     function (err) {
       callback(err, this.lastID); // Renvoie l'ID de la réservation ajoutée
     }
   );
+  // Met la disponibilite a non quand un projecteur est reserve
+  db.run(query2,[projectorId],);
+
 };
 
 const getAllReservations = (callback) => {
@@ -30,28 +37,43 @@ const getAllReservations = (callback) => {
 };
 
 const deleteReservation = (id, callback) => {
-  const query = `
-      DELETE FROM reservations WHERE id = ?;
+    // Récupérer l'ID du projecteur associé à la réservation
+    const getGetProjectorId = `
+      SELECT projector_id FROM reservations WHERE id = ?;
     `;
-  db.run(query, [id], function (err) {
-    callback(err, this.changes); // Renvoie le nombre de lignes supprimées
-  });
-};
-
-const checkDispo = (id, callback) => {
-  const query = `
-        SELECT * FROM reservations WHERE projector_id = ?;
+  
+    db.get(getGetProjectorId, [id], (err, row) => {
+      if (err) {
+        callback(err, null);
+        return;
+      }
+  
+      if (!row) {
+        callback(null, 0); // Aucune réservation trouvée
+        return;
+      }
+  
+      const projectorId = row.projector_id;
+  
+      // Supprimer la reservation
+      const queryDeleteReservation = `
+        DELETE FROM reservations WHERE id = ?;
       `;
-  db.get(query, [id], (err, row) => {
-    callback(err, row);
-  });
-};
-
-// checkDispo(1, (err, reservations) => {
-//   if (!reservations) {
-//     console.log("ras")
-//   } else {
-//     console.log(reservations)
-//   }
-// });
-module.exports = {checkDispo, addReservation, getAllReservations, deleteReservation };
+  
+      db.run(queryDeleteReservation, [id], function (err) {
+        if (err) {
+          callback(err, null);
+          return;
+        }
+  
+        // restaurer la disponibilite du projecteur
+        const queryUpdateProjector = `
+          UPDATE projectors SET disponible = 'oui' WHERE id = ?;
+        `;
+  
+        db.run(queryUpdateProjector, [projectorId]);
+      });
+    });
+  };
+ 
+module.exports = { addReservation, getAllReservations, deleteReservation };

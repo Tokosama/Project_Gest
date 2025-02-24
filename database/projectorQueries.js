@@ -12,12 +12,12 @@ const addProjector = (name, callback) => {
 };
 
 // Mettre à jour l'état d'un projecteur
-const updateProjectorStatus = (id, status, reservationStart, reservationEnd, callback) => {
+const updateProjectorStatus = (id, fonctionnel, callback) => {
   const query = `
-    UPDATE projectors SET status = ?, reservation_start = ?, reservation_end = ?
+    UPDATE projectors SET   fonctionnel= ?
     WHERE id = ?;
   `;
-  db.run(query, [status, reservationStart, reservationEnd, id], function (err) {
+  db.run(query, [fonctionnel, id], function (err) {
     callback(err, this.changes);
   });
 };
@@ -41,6 +41,14 @@ const getAllProjectors = (callback) => {
     callback(err, rows);
   });
 };
+const getAllDispoProjectors = (callback) => {
+  const query = `
+    SELECT * FROM projectors where disponible = 'oui';
+  `;
+  db.all(query, [], (err, rows) => {
+    callback(err, rows);
+  });
+};
 
 // Supprimer un projecteur
 const deleteProjector = (id, callback) => {
@@ -52,4 +60,4 @@ const deleteProjector = (id, callback) => {
   });
 };
 
-module.exports = { addProjector, updateProjectorStatus, getProjectorById, getAllProjectors, deleteProjector };
+module.exports = { addProjector, updateProjectorStatus, getProjectorById,getAllDispoProjectors, getAllProjectors, deleteProjector };
