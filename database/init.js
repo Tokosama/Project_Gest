@@ -12,19 +12,33 @@ const createTables = () => {
     );
   `;
 
-  // Table des projecteurs
+  // Nouvelle table des projecteurs sans reservation_start et reservation_end
   const createProjectorsTable = `
     CREATE TABLE IF NOT EXISTS projectors (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
-      status TEXT CHECK(status IN ('disponible', 'réservé', 'en maintenance')) DEFAULT 'disponible',
-      reservation_start DATETIME,
-      reservation_end DATETIME
+      disponible TEXT CHECK(disponible IN ('oui', 'non')) DEFAULT 'oui',
+      fonctionnel TEXT CHECK(fonctionnel IN ('oui', 'non')) DEFAULT 'oui'
+
+    );
+  `;
+
+  // Nouvelle table des réservations
+  const createReservationsTable = `
+    CREATE TABLE IF NOT EXISTS reservations (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      projector_id INTEGER NOT NULL,
+      reservation_start DATETIME NOT NULL,
+      reservation_end DATETIME NOT NULL,
+      FOREIGN KEY (user_id) REFERENCES users(id),
+      FOREIGN KEY (projector_id) REFERENCES projectors(id)
     );
   `;
 
   // Exécuter les requêtes SQL pour créer les tables
   db.serialize(() => {
+    // Créer la table des utilisateurs
     db.run(createUsersTable, (err) => {
       if (err) {
         console.error("Erreur lors de la création de la table des utilisateurs :", err.message);
@@ -33,11 +47,21 @@ const createTables = () => {
       }
     });
 
+    // Créer la nouvelle table des projecteurs
     db.run(createProjectorsTable, (err) => {
       if (err) {
         console.error("Erreur lors de la création de la table des projecteurs :", err.message);
       } else {
         console.log("Table des projecteurs créée avec succès !");
+      }
+    });
+
+    // Créer la table des réservations
+    db.run(createReservationsTable, (err) => {
+      if (err) {
+        console.error("Erreur lors de la création de la table des réservations :", err.message);
+      } else {
+        console.log("Table des réservations créée avec succès !");
       }
     });
   });

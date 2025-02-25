@@ -23,9 +23,20 @@ const getProjectorById = (req, res) => {
     }
   });
 };
-
+// Recuperer tous les projecteurs
 const getAllProjectors = (req, res) => {
   projectorQueries.getAllProjectors((err, projectors) => {
+    if (err) {
+      res.status(500).json({ error: "Erreur lors de la récupération des projecteurs." });
+    } else {
+      res.status(200).json(projectors);
+    }
+  });
+};
+// Recuperer tous les projecteurs disponibles
+
+const getAllDispoProjectors = (req, res) => {
+  projectorQueries.getAllDispoProjectors((err, projectors) => {
     if (err) {
       res.status(500).json({ error: "Erreur lors de la récupération des projecteurs." });
     } else {
@@ -36,8 +47,8 @@ const getAllProjectors = (req, res) => {
 
 const updateProjectorStatus = (req, res) => {
   const { id } = req.params;
-  const { status, reservationStart, reservationEnd } = req.body;
-  projectorQueries.updateProjectorStatus(id, status, reservationStart, reservationEnd, (err, changes) => {
+  const { fonctionnel } = req.body;
+  projectorQueries.updateProjectorStatus(id, fonctionnel,  (err, changes) => {
     if (err) {
       res.status(500).json({ error: "Erreur lors de la mise à jour du projecteur." });
     } else if (changes === 0) {
@@ -61,4 +72,4 @@ const deleteProjector = (req, res) => {
   });
 };
 
-module.exports = { addProjector, getProjectorById, getAllProjectors, updateProjectorStatus, deleteProjector };
+module.exports = { addProjector, getProjectorById, getAllProjectors,getAllDispoProjectors, updateProjectorStatus, deleteProjector };
