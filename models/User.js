@@ -1,23 +1,39 @@
-const mongoose = require('mongoose');
+const { Sequelize, DataTypes, Model } = require('sequelize');
 const bcrypt = require('bcryptjs');
+const sequelize = require('../config/database');
 
-const userSchema = new mongoose.Schema({
-  username: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  role: { type: String, enum: ['etudiant', 'enseignant', 'administrateur'], required: true },
+class User extends Model {
+  // Méthode pour comparer le mot de passe
+  async comparePassword(candidatePassword) {
+    return bcrypt.compare(candidatePassword, this.password);
+  }
+}
+
+User.init({
+  username: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true
+  },
+  password: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  role: {
+    type: DataTypes.ENUM('etudiant', 'enseignant', 'administrateur'),
+    allowNull: false
+  }
+}, {
+  sequelize,
+  modelName: 'User',
+  hooks: {
+    // Méthode pour hacher le mot de passe avant de sauvegarder
+    beforeSave: async (user, options) => {
+      if (user.changed('password')) {
+        user.password = await bcrypt.hash(user.password, 8);
+      }
+    }
+  }
 });
 
-// Méthode pour hacher le mot de passe avant de sauvegarder
-userSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next();
-  this.password = await bcrypt.hash(this.password, 8);
-  next();
-});
-
-// Méthode pour comparer le mot de passe
-userSchema.methods.comparePassword = async function(candidatePassword) {
-  return bcrypt.compare(candidatePassword, this.password);
-};
-
-const User = mongoose.model('User', userSchema);
 module.exports = User;
