@@ -11,9 +11,9 @@ dotenv.config();
 // Middleware pour traiter les données JSON
 app.use(express.json());
 //routes 
-app.use('/api/v1/auth',authRouter)
-app.use('/api/v1/projectors',projectorsRouter)
-app.use('/api/v1/reservation',reservationRouter)
+app.use('/auth',authRouter)
+app.use('/projectors',projectorsRouter)
+app.use('/reservation',reservationRouter)
 
 
 app.get("/", (req, res) => {
