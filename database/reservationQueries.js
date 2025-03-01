@@ -75,5 +75,23 @@ const deleteReservation = (id, callback) => {
       });
     });
   };
+
+  const getProjectorAvailability = (projectorId, reservationStart, reservationEnd, callback) => {
+    const query = `
+      SELECT * FROM reservations 
+      WHERE projector_id = ? 
+      AND (reservation_start < ? AND reservation_end > ?);
+    `;
+    
+    db.get(query, [projectorId, reservationEnd, reservationStart], (err, row) => {
+      if (err) {
+        return callback(err, null);
+      }
+      // Si aucune réservation ne correspond, le projecteur est disponible
+      callback(null, !row); 
+    });
+  };
+  
+  module.exports = { getProjectorAvailability, addReservation, getAllReservations, deleteReservation };
+  
  
-module.exports = { addReservation, getAllReservations, deleteReservation };

@@ -1,15 +1,30 @@
 const reservationQueries = require("../database/reservationQueries");
 
 const addReservation = (req, res) => {
-  const { userId, projectorId, reservationStart, reservationEnd } = req.body; // Récupérer les données de la requête
-  reservationQueries.addReservation(userId, projectorId, reservationStart, reservationEnd, (err, reservationId) => {
+  const { userId, projectorId, reservationStart, reservationEnd } = req.body;
+
+  // Vérifier la disponibilité du projecteur
+  reservationQueries.getProjectorAvailability(projectorId, reservationStart, reservationEnd, (err, available) => {
     if (err) {
-      res.status(500).json({ error: "Erreur lors de l'ajout de la réservation." });
-    } else {
-      res.status(201).json({ message: "Réservation ajoutée avec succès", reservationId });
+      return res.status(500).json({ error: "Erreur lors de la vérification de la disponibilité du projecteur." });
     }
+
+    // Si le projecteur n'est pas disponible
+    if (!available) {
+      return res.status(400).json({ error: "Le projecteur n'est pas disponible pour la période demandée." });
+    }
+
+    // Si le projecteur est disponible, procéder à la réservation
+    reservationQueries.addReservation(userId, projectorId, reservationStart, reservationEnd, (err, reservationId) => {
+      if (err) {
+        res.status(500).json({ error: "Erreur lors de l'ajout de la réservation." });
+      } else {
+        res.status(201).json({ message: "Réservation ajoutée avec succès", reservationId });
+      }
+    });
   });
 };
+
 
 const getAllReservations = (req, res) => {
   reservationQueries.getAllReservations((err, reservations) => {

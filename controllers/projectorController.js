@@ -1,6 +1,9 @@
 const projectorQueries = require("../database/projectorQueries");
+const { isAdmin } = require("../middleware/authentication"); // Import du middleware
 
-const addProjector = (req, res) => {
+// Ajouter un projecteur (accessible uniquement aux admins)
+// Ajouter un projecteur (accessible uniquement aux admins)
+const addProjector = [isAdmin, (req, res) => {
   const { name } = req.body;
   projectorQueries.addProjector(name, (err, projectorId) => {
     if (err) {
@@ -9,8 +12,9 @@ const addProjector = (req, res) => {
       res.status(201).json({ message: "Projecteur ajouté avec succès", projectorId });
     }
   });
-};
+}];
 
+// Récupérer un projecteur par ID
 const getProjectorById = (req, res) => {
   const { id } = req.params;
   projectorQueries.getProjectorById(id, (err, projector) => {
@@ -23,7 +27,8 @@ const getProjectorById = (req, res) => {
     }
   });
 };
-// Recuperer tous les projecteurs
+
+// Récupérer tous les projecteurs
 const getAllProjectors = (req, res) => {
   projectorQueries.getAllProjectors((err, projectors) => {
     if (err) {
@@ -33,8 +38,8 @@ const getAllProjectors = (req, res) => {
     }
   });
 };
-// Recuperer tous les projecteurs disponibles
 
+// Récupérer tous les projecteurs disponibles
 const getAllDispoProjectors = (req, res) => {
   projectorQueries.getAllDispoProjectors((err, projectors) => {
     if (err) {
@@ -45,10 +50,11 @@ const getAllDispoProjectors = (req, res) => {
   });
 };
 
+// Mettre à jour le statut d'un projecteur (fonctionnel ou non)
 const updateProjectorStatus = (req, res) => {
   const { id } = req.params;
   const { fonctionnel } = req.body;
-  projectorQueries.updateProjectorStatus(id, fonctionnel,  (err, changes) => {
+  projectorQueries.updateProjectorStatus(id, fonctionnel, (err, changes) => {
     if (err) {
       res.status(500).json({ error: "Erreur lors de la mise à jour du projecteur." });
     } else if (changes === 0) {
@@ -59,7 +65,8 @@ const updateProjectorStatus = (req, res) => {
   });
 };
 
-const deleteProjector = (req, res) => {
+// Supprimer un projecteur (accessible uniquement aux admins)
+const deleteProjector = [isAdmin, (req, res) => {
   const { id } = req.params;
   projectorQueries.deleteProjector(id, (err, changes) => {
     if (err) {
@@ -70,6 +77,14 @@ const deleteProjector = (req, res) => {
       res.status(200).json({ message: "Projecteur supprimé avec succès." });
     }
   });
+}];
+
+module.exports = { 
+  addProjector, 
+  getProjectorById, 
+  getAllProjectors, 
+  getAllDispoProjectors, 
+  updateProjectorStatus, 
+  deleteProjector 
 };
 
-module.exports = { addProjector, getProjectorById, getAllProjectors,getAllDispoProjectors, updateProjectorStatus, deleteProjector };

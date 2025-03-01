@@ -1,16 +1,19 @@
 const db = require("./config/database");
+
 const express = require("express");
 const app = express();
+
 const dotenv = require("dotenv");
 //import route
 const authRouter = require('./routes/auth')
 const projectorsRouter = require('./routes/projectors')
 const reservationRouter = require('./routes/reservation')
 const profileRouter = require('./routes/profile')
+const usersRouter = require('./routes/users');
+  // Ajouter cette ligne pour les utilisateurs
+
 //import middleware
-const authenticateUser = require("./middleware/authentication");
-
-
+const { authMiddleware } = require("./middleware/authentication");
 
 dotenv.config();
 
@@ -18,10 +21,11 @@ dotenv.config();
 app.use(express.json());
 
 //routes 
-app.use('/auth',authRouter)
-app.use('/projectors',projectorsRouter)
-app.use('/reservation',reservationRouter)
-app.use('/profile', authenticateUser,profileRouter)
+app.use('/auth',authRouter);
+app.use('/projectors',projectorsRouter);
+app.use('/reservation',reservationRouter);
+app.use('/profile', authMiddleware, profileRouter);
+app.use('/users', authMiddleware, usersRouter);  // Ajouter cette ligne pour les utilisateurs
 
 
 

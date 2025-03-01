@@ -4,14 +4,24 @@ const jwt = require("jsonwebtoken");
 
 //controller de register
 const register = async (req, res) => {
+  console.log("📩 Données reçues :", req.body); // Ajout du log
+
   const { username, role, email } = req.body;
   let { password } = req.body;
-  //Hashage du password
+
+  // Vérifier si les données sont bien reçues
+  if (!username || !email || !password || !role) {
+    return res.status(400).json({ error: "Tous les champs sont requis." });
+  }
+
+  // Hashage du mot de passe
   const salt = await bcrypt.genSalt(10);
   password = await bcrypt.hash(password, salt);
-  //enregistrement de l'utilisateur
+
+  // Enregistrement de l'utilisateur
   userQueries.addUser(username, password, role, email, (err, userId) => {
     if (err) {
+      console.error("Erreur lors de l'ajout :", err); // Ajout du log d'erreur
       res
         .status(500)
         .json({ error: "Erreur lors de l'ajout de l'utilisateur." });
@@ -22,7 +32,6 @@ const register = async (req, res) => {
     }
   });
 };
-
 function createJWT(id, name, email, role) {
   return jwt.sign(
     { userId: id, email: email, userName: name, role: role },
@@ -56,7 +65,7 @@ const login = async (req, res) => {
           return res.status(401).json({ error: "Mot de passe incorrect." });
         }
 
-        //creation du toekn
+        //creation du token
         const token = createJWT(user.id, user.username, user.email, user.role);
         res.json({ user: { username: user.username }, token });
       }
