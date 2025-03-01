@@ -23,9 +23,9 @@ const register = async (req, res) => {
   });
 };
 
-function createJWT(id, name) {
+function createJWT(id, name, email, role) {
   return jwt.sign(
-    { userId: this._id, name: this.name },
+    { userId: id, email: email, userName: name, role: role },
     process.env.JWT_SECRET,
     {
       expiresIn: process.env.JWT_LIFETIME,
@@ -35,6 +35,7 @@ function createJWT(id, name) {
 
 const login = async (req, res) => {
   const { email, password } = req.body;
+  console.log(req.headers);
   try {
     if (!email || !password) {
       throw new Error("Email et mot de passe requis.");
@@ -42,7 +43,9 @@ const login = async (req, res) => {
 
     userQueries.getUserByEmail(email, async (err, user) => {
       if (err) {
-        res.status(500).json({ error: "Erreur lors de la récupération de l'utilisateur." });
+        res
+          .status(500)
+          .json({ error: "Erreur lors de la récupération de l'utilisateur." });
       } else if (!user) {
         //non existance de l'utilisateur
         res.status(404).json({ error: "Utilisateur non trouvé." });
@@ -54,9 +57,8 @@ const login = async (req, res) => {
         }
 
         //creation du toekn
-        const token = createJWT(user.id , user.username)
+        const token = createJWT(user.id, user.username, user.email, user.role);
         res.json({ user: { username: user.username }, token });
-
       }
     });
   } catch (err) {
