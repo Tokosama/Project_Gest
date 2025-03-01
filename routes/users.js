@@ -8,13 +8,6 @@ const router = express.Router();
 router.get('/', authMiddleware, isAdmin, getAllUsers);  // Appeler la fonction directement
 
 // Supprimer un utilisateur (accessible uniquement aux admins)
-router.delete('/:id', authMiddleware, isAdmin, (req, res) => {
-    const { id } = req.params;
-    deleteUser(id, (err, changes) => {
-        if (err) return res.status(500).json({ message: "Erreur lors de la suppression de l'utilisateur" });
-        if (changes === 0) return res.status(404).json({ message: "Utilisateur non trouvé" });
-        res.status(200).json({ message: "Utilisateur supprimé avec succès" });
-    });
-});
+router.delete('/:id', authMiddleware, deleteUser);
 
 module.exports = router;

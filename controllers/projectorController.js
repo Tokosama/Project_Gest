@@ -1,7 +1,6 @@
 const projectorQueries = require("../database/projectorQueries");
-const { isAdmin } = require("../middleware/authentication"); // Import du middleware
+const { isAdmin } = require("../middleware/authentication"); 
 
-// Ajouter un projecteur (accessible uniquement aux admins)
 // Ajouter un projecteur (accessible uniquement aux admins)
 const addProjector = [isAdmin, (req, res) => {
   const { name } = req.body;

@@ -1,0 +1,10 @@
+Nous ajoutons le fichier .env au repo pour vous permettre de facilement tester notre travaille, nous savons tres bien que ce fichier nest generalement pas ajouté
+//
+nous avons ajouter une route supplementaire (/users) pour gerer les utilisateurs et permettrede mieux tester le middleware isAdmin
+//
+nous avons utiliser sqlite comme db 
+le fichier init.js permet la creation de la base de donnee, config se connecte a laa db
+//
+pour jwt , nous avons utiliser une cle generee aleatoirement (voir .env)
+//
+pour gerer la disponibilite, nous avons un attribut "disponible" sur la table projecteur, cette attribut se change automatique lors de la reservation ou de la suppression de reservation. Cest avec lui quon verifie si le projecteur est disponible avant une reservation

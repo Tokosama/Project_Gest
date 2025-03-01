@@ -4,7 +4,6 @@ const jwt = require("jsonwebtoken");
 
 //controller de register
 const register = async (req, res) => {
-  console.log("📩 Données reçues :", req.body); // Ajout du log
 
   const { username, role, email } = req.body;
   let { password } = req.body;
@@ -32,6 +31,7 @@ const register = async (req, res) => {
     }
   });
 };
+//fonction de creation du token
 function createJWT(id, name, email, role) {
   return jwt.sign(
     { userId: id, email: email, userName: name, role: role },
@@ -44,7 +44,6 @@ function createJWT(id, name, email, role) {
 
 const login = async (req, res) => {
   const { email, password } = req.body;
-  console.log(req.headers);
   try {
     if (!email || !password) {
       throw new Error("Email et mot de passe requis.");
@@ -71,7 +70,6 @@ const login = async (req, res) => {
       }
     });
   } catch (err) {
-    console.error("Erreur :", err.message);
 
     let statusCode = 500; // Par défaut, erreur serveur
     if (err.message === "Utilisateur non trouvé.") statusCode = 404;
@@ -94,6 +92,7 @@ const getUserByUsername = (req, res) => {
     }
   });
 };
+//accessible uniquement aux admins
 
 const getAllUsers = (req, res) => {
   userQueries.getAllUsers((err, users) => {
@@ -131,7 +130,7 @@ const updateUser = (req, res) => {
     }
   );
 };
-
+//accessible uniquement aux admins
 const deleteUser = (req, res) => {
   const { id } = req.params;
   userQueries.deleteUser(id, (err, changes) => {
