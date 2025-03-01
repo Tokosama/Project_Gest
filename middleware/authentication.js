@@ -4,6 +4,8 @@ require("dotenv").config(); // Charge les variables d'environnement
 
 
 const authMiddleware = (req, res, next) => {
+  console.log(req.user)
+
     const authHeader = req.headers.authorization; // Récupère le header Authorization qui contient le token
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {//Bearer est une convention dans ce genre de cas
@@ -24,7 +26,8 @@ const authMiddleware = (req, res, next) => {
 // Middleware pour vérifier si l'utilisateur est un administrateur avant de permettre l'inscription avec ce rôle
 // authMiddleware.js
 const isAdmin = (req, res, next) => {
-    if (req.user && req.user.role === 'admin') { // Supposons que tu as un utilisateur avec un champ `role`
+  console.log(req)
+    if (req.user && req.user.role === 'administrateur') { // Supposons que tu as un utilisateur avec un champ `role`
       return next(); // L'utilisateur est un administrateur, autoriser l'accès
     } else {
       return res.status(403).json({ error: "Accès refusé. Vous n'êtes pas un administrateur." });

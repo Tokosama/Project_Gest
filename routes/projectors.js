@@ -1,13 +1,13 @@
 const express = require("express");
 const { addProjector, getProjectorById, getAllProjectors, getAllDispoProjectors, updateProjectorStatus, deleteProjector } = require("../controllers/projectorController");
-const { isAdmin } = require("../middleware/authentication"); // Import du middleware
+const { isAdmin, authMiddleware } = require("../middleware/authentication"); // Import du middleware
 
 const router = express.Router();
 
 // Protéger les routes sensibles avec isAdmin
 
 // Ajouter un projecteur (réservé aux admins)
-router.post("/", isAdmin, addProjector);
+router.post("/", authMiddleware, isAdmin, addProjector);
 
 // Récupérer tous les projecteurs (accessible par tous)
 router.get("/", getAllProjectors);
@@ -19,9 +19,9 @@ router.get("/disponibles", getAllDispoProjectors);
 router.get("/:id", getProjectorById);
 
 // Mettre à jour un projecteur (réservé aux admins)
-router.patch("/:id", isAdmin, updateProjectorStatus);
+router.patch("/:id",authMiddleware, isAdmin, updateProjectorStatus);
 
 // Supprimer un projecteur (réservé aux admins)
-router.delete("/:id", isAdmin, deleteProjector);
+router.delete("/:id",authMiddleware, isAdmin, deleteProjector);
 
 module.exports = router;

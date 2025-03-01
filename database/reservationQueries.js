@@ -37,60 +37,72 @@ const getAllReservations = (callback) => {
 };
 
 const deleteReservation = (id, callback) => {
-    // Récupérer l'ID du projecteur associé à la réservation
-    const getGetProjectorId = `
-      SELECT projector_id FROM reservations WHERE id = ?;
-    `;
-  
-    db.get(getGetProjectorId, [id], (err, row) => {
-      if (err) {
-        callback(err, null);
-        return;
-      }
-  
-      if (!row) {
-        callback(null, 0); // Aucune réservation trouvée
-        return;
-      }
-  
-      const projectorId = row.projector_id;
-  
-      // Supprimer la reservation
-      const queryDeleteReservation = `
-        DELETE FROM reservations WHERE id = ?;
-      `;
-  
-      db.run(queryDeleteReservation, [id], function (err) {
-        if (err) {
-          callback(err, null);
-          return;
-        }
-  
-        // restaurer la disponibilite du projecteur
-        const queryUpdateProjector = `
-          UPDATE projectors SET disponible = 'oui' WHERE id = ?;
-        `;
-  
-        db.run(queryUpdateProjector, [projectorId]);
-      });
-    });
-  };
+  // Récupérer l'ID du projecteur associé à la réservation
+  const getProjectorIdQuery = `
+    SELECT projector_id FROM reservations WHERE id = ?;
+  `;
 
-  const getProjectorAvailability = (projectorId, reservationStart, reservationEnd, callback) => {
-    const query = `
-      SELECT * FROM reservations 
-      WHERE projector_id = ? 
-      AND (reservation_start < ? AND reservation_end > ?);
+  db.get(getProjectorIdQuery, [id], (err, row) => {
+    if (err) {
+      return callback(err, null);
+    }
+
+    if (!row) {
+      return callback(null, 0); // Aucune réservation trouvée
+    }
+
+    const projectorId = row.projector_id;
+
+    // Supprimer la réservation
+    const deleteReservationQuery = `
+      DELETE FROM reservations WHERE id = ?;
     `;
-    
-    db.get(query, [projectorId, reservationEnd, reservationStart], (err, row) => {
+
+    db.run(deleteReservationQuery, [id], function (err) {
       if (err) {
         return callback(err, null);
       }
-      // Si aucune réservation ne correspond, le projecteur est disponible
-      callback(null, !row); 
+
+      // Restaurer la disponibilité du projecteur
+      const updateProjectorQuery = `
+        UPDATE projectors SET disponible = 'oui' WHERE id = ?;
+      `;
+
+      db.run(updateProjectorQuery, [projectorId], function (err) {
+        if (err) {
+          return callback(err, null);
+        }
+
+        // Terminer la requête en appelant le callback
+        callback(null, this.changes);
+      });
     });
-  };
+  });
+};
+
+
+  const getProjectorAvailability = (projectorId, callback) => {
+    const query = `
+      SELECT disponible FROM projectors 
+      WHERE id = ?;
+    `;
+
+    console.log("Avant l'exécution de la requête");
+
+    db.get(query, [projectorId], (err, row) => {
+        if (err) {
+            return callback(err, null);
+        }
+        
+        console.log("Résultat SQL :", row); // Pour voir le résultat retourné
+        
+        // Si `row` existe et `disponible` est "oui", alors le projecteur est disponible
+        const isAvailable = row && row.disponible === "oui";
+        callback(null, isAvailable);
+    });
+
+    console.log("Après l'exécution de la requête (attention, c'est asynchrone)");
+};
   
   module.exports = { getProjectorAvailability, addReservation, getAllReservations, deleteReservation };
   

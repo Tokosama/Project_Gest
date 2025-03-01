@@ -4,14 +4,14 @@ const addReservation = (req, res) => {
   const { userId, projectorId, reservationStart, reservationEnd } = req.body;
 
   // Vérifier la disponibilité du projecteur
-  reservationQueries.getProjectorAvailability(projectorId, reservationStart, reservationEnd, (err, available) => {
+  reservationQueries.getProjectorAvailability(projectorId, (err, available) => {
     if (err) {
       return res.status(500).json({ error: "Erreur lors de la vérification de la disponibilité du projecteur." });
     }
 
     // Si le projecteur n'est pas disponible
     if (!available) {
-      return res.status(400).json({ error: "Le projecteur n'est pas disponible pour la période demandée." });
+      return res.status(400).json({ error: "Le projecteur n'est pas disponible " });
     }
 
     // Si le projecteur est disponible, procéder à la réservation
